@@ -1,0 +1,16 @@
+{
+	"name": "pyrsmk/streams",
+	"version": "1.0.0",
+	"require": {
+        "pyrsmk/chernozem": "^4.2",
+        "pyrsmk/funktions": "^0.2",
+        "guzzlehttp/guzzle": "^6.2",
+        "facebook/graph-sdk": "^5.4",
+        "james-heinrich/getid3": "^1.9"
+	},
+	"autoload": {
+		"psr-4" : {
+			"Streams\\" : "src/"
+		}
+	}
+}
