@@ -1,9 +1,28 @@
 {
 	"name": "pyrsmk/streams",
-	"version": "1.0.0",
+	"description": "Unified social streams",
+	"keywords": [
+        "social",
+        "media",
+        "deviantart",
+        "facebook",
+        "flickr",
+        "google",
+        "googleplus",
+        "instagram",
+        "reddit",
+        "youtube",
+        "vimeo",
+        "dribbble",
+        "500px"
+    ],
+	"license": "MIT",
+	"authors": [{
+		"name": "Aurélien Delogu",
+		"email": "dev@dreamysource.fr",
+		"homepage": "http://dreamysource.io/project/streams"
+	}],
 	"require": {
-        "pyrsmk/chernozem": "^4.2",
-        "pyrsmk/funktions": "^0.2",
         "guzzlehttp/guzzle": "^6.2",
         "facebook/graph-sdk": "^5.4",
         "james-heinrich/getid3": "^1.9"
