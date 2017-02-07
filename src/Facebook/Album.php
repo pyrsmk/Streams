@@ -97,6 +97,8 @@ class Album extends Facebook {
                 $url = $post['images'][$index]['source'];
                 return $this->_getMimetype($url)->then(function($mimetype) use(&$elements, $id) {
                     $elements[$id]['mimetype'] = $mimetype;
+                }, function() use(&$elements, $id) {
+                    unset($elements[$id]);
                 });
             };
         }

@@ -92,12 +92,16 @@ class People extends GooglePlus {
                     $url = $post['object']['attachments'][0]['fullImage']['url'];
                     return $this->_getMimetype($url)->then(function($mimetype) use(&$elements, $id) {
                         $elements[$id]['mimetype'] = $mimetype;
+                    }, function() use(&$elements, $id) {
+                        unset($elements[$id]);
                     });
                 };
                 $requests[] = function() use($post, &$elements, $id) {
                     return $this->_getImageSize($elements[$id]['source'])->then(function($size) use(&$elements, $id) {
                         $elements[$id]['width'] = $size['width'];
                         $elements[$id]['height'] = $size['height'];
+                    }, function() use(&$elements, $id) {
+                        unset($elements[$id]);
                     });
                 };
             }

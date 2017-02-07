@@ -60,7 +60,6 @@ class User extends Instagram {
                 $elements[$id]['source'] = $post['images']['standard_resolution']['url'];
                 $elements[$id]['width'] = $post['images']['standard_resolution']['width'];
                 $elements[$id]['height'] = $post['images']['standard_resolution']['height'];
-                $elements[$id]['mimetype'] = mimetype($elements[$id]['source']);
             }
             // Video
             else if($post['type'] == 'video') {
@@ -69,12 +68,13 @@ class User extends Instagram {
                 $elements[$id]['width'] = $post['videos']['standard_resolution']['width'];
                 $elements[$id]['height'] = $post['videos']['standard_resolution']['height'];
                 $elements[$id]['preview'] = $post['images']['standard_resolution']['url'];
-                $elements[$id]['mimetype'] = mimetype($elements[$id]['source']);
             }
             // Get mime type
             $requests[] = function() use(&$elements, $id) {
                 return $this->_getMimetype($elements[$id]['source'])->then(function($mimetype) use(&$elements, $id) {
                     $elements[$id]['mimetype'] = $mimetype;
+                }, function() use(&$elements, $id) {
+                    unset($elements[$id]);
                 });
             };
         }

@@ -25,7 +25,6 @@ abstract class Flickr extends AbstractStream {
         $this->guzzle = new GuzzleHttp\Client(['verify' => false]);
         // Normalize
         $config['description'] = isset($config['description']) ? $config['description'] : false;
-        $config['mimetype'] = isset($config['mimetype']) ? $config['mimetype'] : false;
         // Construct parent
         parent::__construct($id, $config);
     }

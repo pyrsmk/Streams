@@ -121,6 +121,8 @@ class Album extends Flickr {
                 $requests[] = function() use($post, &$elements, $id) {
                     return $this->_getMimetype($post['url_l'])->then(function($mimetype) use(&$elements, $id) {
                         $elements[$id]['mimetype'] = $mimetype;
+                    }, function() use(&$elements, $id) {
+                        unset($elements[$id]);
                     });
                 };
                 $elements[$id]['type'] = 'image';

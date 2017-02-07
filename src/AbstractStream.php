@@ -28,6 +28,7 @@ abstract class AbstractStream {
         $this->config = $config;
         $this->config['nsfw'] = isset($this->config['nsfw']) ? $this->config['nsfw'] : false;
         $this->config['limit'] = isset($this->config['limit']) ? $this->config['limit'] : null;
+        $this->config['mimetype'] = isset($this->config['mimetype']) ? $this->config['mimetype'] : false;
     }
     
     /*

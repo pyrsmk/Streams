@@ -25,7 +25,6 @@ abstract class Facebook extends AbstractStream {
         if(!isset($config['api']) || !isset($config['secret'])) {
             throw new Exception("'api' and 'secret' parameters must be defined");
         }
-        $config['mimetype'] = isset($config['mimetype']) ? $config['mimetype'] : false;
         // Create Facebook connection
         $this->facebook = new \Facebook\Facebook([
             'app_id' => $config['api'],
