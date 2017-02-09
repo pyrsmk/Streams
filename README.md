@@ -1,4 +1,4 @@
-Streams 1.0.3
+Streams 1.0.4
 =============
 
 Install

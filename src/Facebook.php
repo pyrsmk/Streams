@@ -21,7 +21,7 @@ abstract class Facebook extends AbstractStream {
             string $key
     */
     public function __construct($id, array $config = []) {
-        // Normalize
+        // Verify
         if(!isset($config['api']) || !isset($config['secret'])) {
             throw new Exception("'api' and 'secret' parameters must be defined");
         }

@@ -21,6 +21,9 @@ abstract class GooglePlus extends AbstractStream {
             string $key
     */
     public function __construct($id, array $config = []) {
+        if(!isset($config['api'])) {
+            throw new Exception("'api' parameter must be defined");
+        }
         $this->guzzle = new GuzzleHttp\Client(['verify' => false]);
         parent::__construct($id, $config);
     }

@@ -21,10 +21,14 @@ abstract class Flickr extends AbstractStream {
             string $key
     */
     public function __construct($id, array $config = []) {
-        // Init Guzzle
-        $this->guzzle = new GuzzleHttp\Client(['verify' => false]);
+        // Verify
+        if(!isset($config['api'])) {
+            throw new Exception("'api' parameter must be defined");
+        }
         // Normalize
         $config['description'] = isset($config['description']) ? $config['description'] : false;
+        // Init Guzzle
+        $this->guzzle = new GuzzleHttp\Client(['verify' => false]);
         // Construct parent
         parent::__construct($id, $config);
     }
