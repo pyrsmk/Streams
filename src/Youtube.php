@@ -63,6 +63,102 @@ abstract class Youtube extends AbstractStream {
     }
     
     /*
+        Pagination
+        
+        Parameters
+            string $endpoint
+            array $query
+            string $avatar
+        
+        Return
+            GuzzleHttp\Promise\Promise
+    */
+    protected function _paginate($endpoint, array $query = [], $avatar = null) {
+        return $this->_createRequest($endpoint, $query)->then(function($data) use($endpoint, $query, $avatar) {
+            // Parse posts
+            $elements = $this->_parsePosts($data['items'], $avatar);
+            // Get remaining data
+            $getNextPage = function($data) use($endpoint, $query, &$getNextPage, &$elements, $avatar) {
+                if(isset($data['nextPageToken'])) {
+                    $query['pageToken'] = $data['nextPageToken'];
+                    $this->_createRequest($endpoint, $query)->then(function($data) use(&$getNextPage, &$elements, $avatar) {
+                        $elements = array_merge($elements, $this->_parsePosts($data['items'], $avatar));
+                        if($this->config['limit'] === null || count($elements) < $this->config['limit']) {
+                            $getNextPage($data);
+                        }
+                    })->wait();
+                }
+            };
+            $getNextPage($data);
+            return $elements;
+        });
+    }
+    
+    /*
+        Parse posts and create elements
+        
+        Parameters
+            array $posts
+            string $avatar
+        
+        Return
+            array
+    */
+    protected function _parsePosts($posts, $avatar) {
+        // Prepare
+        $elements = [];
+        $requests = [];
+        $qualities = ['maxres', 'standard', 'high', 'medium', 'default'];
+        // Browse posts
+        foreach($posts as $post) {
+            // Prepare
+            $id = $this->_getNewId();
+            $video_id = isset($post['id']['videoId']) ? $post['id']['videoId'] : $post['snippet']['resourceId']['videoId'];
+            // Pick the right thumbnail
+            foreach($qualities as $quality) {
+                if(isset($post['snippet']['thumbnails'][$quality])) {
+                    break;
+                }
+            }
+            // Save element
+            $elements[$id] = [
+                'type' => 'embed',
+                'title' => $post['snippet']['title'],
+                'date' => strtotime($post['snippet']['publishedAt']),
+                'permalink' => 'https://www.youtube.com/watch?v='.$video_id,
+                'preview' => $post['snippet']['thumbnails'][$quality]['url'],
+                'author' => $post['snippet']['channelTitle'],
+                'description' => $post['snippet']['description']
+            ];
+            // Get avatar
+            if($avatar === null) {
+                $requests[] = function() use($post, &$elements, $id) {
+                    return $this->_getAvatar($post['snippet']['channelId'])->then(function($url) use(&$elements, $id) {
+                        $elements[$id]['avatar'] = $url;
+                    });
+                };
+            }
+            else {
+                $elements[$id]['avatar'] = $avatar;
+            }
+            // Get embed code
+            $requests[] = function() use($video_id, &$elements, $id) {                
+                return $this->_getVideo($video_id)->then(function($video) use(&$elements, $id) {
+                    $elements[$id]['html'] = $video['html'];
+                    $elements[$id]['width'] = $video['width'];
+                    $elements[$id]['height'] = $video['height'];
+                }, function() use(&$elements, $id) {
+                    unset($elements[$id]);
+                });
+            };
+        }
+        // Populate last fields
+        $pool = new GuzzleHttp\Pool($this->guzzle, $requests);
+        $pool->promise()->wait();
+        return $elements;
+    }
+    
+    /*
         Get avatar from a channel id
         
         Parameters

@@ -68,16 +68,67 @@ abstract class Flickr extends AbstractStream {
     }
     
     /*
+        Pagination
+        
+        Parameters
+            array $query
+            string $datagroup
+        
+        Return
+            GuzzleHttp\Promise\Promise
+    */
+    protected function _paginate(array $query = [], $datagroup) {
+        return $this->_createRequest($query)->then(function($data) use($query, $datagroup) {
+            // Parse posts
+            $ownername = isset($data[$datagroup]['ownername']) ? $data[$datagroup]['ownername'] : $data[$datagroup]['photo'][0]['ownername'];
+            $elements = $this->_parsePosts($data[$datagroup]['photo'], $ownername, $query['user_id']);
+            // Load remaining data
+            if($this->config['limit'] === null || count($elements) < $this->config['limit']) {
+                // Prepare
+                $requests = [];
+                $start = count($elements) + 1;
+                if($this->config['limit'] === null) {
+                    $end = $data[$datagroup]['total'];
+                }
+                else {
+                    $end = $this->config['limit'] < $data[$datagroup]['total'] ? $this->config['limit'] : $data[$datagroup]['total'];
+                }
+                $end = ceil($end/$this->per_page);
+                // Create further requests
+                for($page=2, $j=$end; $page<$j; ++$page) {
+                    $requests[] = function() use($query, $datagroup, &$elements, $page) {
+                        // Set page
+                        $query['page'] = $page;
+                        // Add new request
+                        return $this->_createRequest($query)->then(function($data) use($query, $datagroup, &$elements) {
+                            $ownername = isset($data[$datagroup]['ownername']) ? $data[$datagroup]['ownername'] : $data[$datagroup]['photo'][0]['ownername'];
+                            $posts = $this->_parsePosts($data[$datagroup]['photo'], $ownername, $query['user_id']);
+                            foreach($posts as $id => $element) {
+                                $elements[$id] = $element;
+                            }
+                        });
+                    };
+                }
+                // Run all requests
+                $pool = new GuzzleHttp\Pool($this->guzzle, $requests);
+                $pool->promise()->wait();
+            }
+            return $elements;
+        });
+    }
+    
+    /*
         Parse posts and create elements
         
         Parameters
             array $posts
             string $ownername
+            string $user_id
         
         Return
             array
     */
-    protected function _parsePosts($posts, $ownername) {
+    protected function _parsePosts($posts, $ownername, $user_id) {
         // Prepare
         $elements = [];
         $requests = [];
@@ -88,13 +139,13 @@ abstract class Flickr extends AbstractStream {
             // Base
             $elements[$id] = [
                 'date' => $post['dateupload'],
-                'permalink' => "https://www.flickr.com/photos/$this->user_id/{$post['id']}/in/dateposted/",
+                'permalink' => "https://www.flickr.com/photos/$user_id/{$post['id']}/in/dateposted/",
                 'title' => $post['title'],
                 'width' => $post['width_l'],
                 'height' => $post['height_l'],
                 'author' => $ownername,
                 'avatar' => $post['iconserver'] > 0 ?
-                            "http://farm{$post['iconfarm']}.staticflickr.com/{$post['iconserver']}/buddyicons/$this->user_id.jpg" :
+                            "http://farm{$post['iconfarm']}.staticflickr.com/{$post['iconserver']}/buddyicons/$user_id.jpg" :
                             "https://www.flickr.com/images/buddyicon.gif"
             ];
             // Add description

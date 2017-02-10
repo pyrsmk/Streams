@@ -3,8 +3,6 @@
 namespace Streams\DeviantArt;
 
 use Streams\DeviantArt;
-use Streams\Exception;
-use GuzzleHttp;
 
 /*
     DeviantArt gallery stream

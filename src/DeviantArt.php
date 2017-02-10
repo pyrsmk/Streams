@@ -95,7 +95,7 @@ abstract class DeviantArt extends AbstractStream {
     }
     
     /*
-        Pagination management
+        Pagination
         
         Parameters
             string $endpoint

@@ -1,5 +1,6 @@
 node_modules/
 tests/vendor/
+tests/medias/
 tests/composer.lock
 composer.lock
 vendor/
