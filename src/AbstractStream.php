@@ -13,9 +13,11 @@ abstract class AbstractStream {
     /*
         string $id
         array $config
+        integer $per_page
     */
     protected $id;
     protected $config;
+    protected $per_page;
     
     /*
         Construct stream
@@ -29,6 +31,25 @@ abstract class AbstractStream {
         $this->config['nsfw'] = isset($this->config['nsfw']) ? $this->config['nsfw'] : false;
         $this->config['limit'] = isset($this->config['limit']) ? $this->config['limit'] : null;
         $this->config['mimetype'] = isset($this->config['mimetype']) ? $this->config['mimetype'] : false;
+        $max_results = $this->_getMaxResultsPerPage();
+        if($max_results !== null) {
+            if($this->config['limit'] === null || $this->config['limit'] > $max_results) {
+                $this->per_page = $max_results;
+            }
+            else {
+                $this->per_page = $this->config['limit'];
+            }
+        }
+    }
+    
+    /*
+        Return the allowed max results per page
+        
+        Return
+            integer
+    */
+    protected function _getMaxResultsPerPage() {
+        return null;
     }
     
     /*
@@ -73,6 +94,10 @@ abstract class AbstractStream {
                         throw new Exception("'$field' field not supported");
                     }
                 }
+            }
+            // Limit elements
+            if($this->config['limit'] !== null && count($elements) > $this->config['limit']) {
+                $elements = array_slice($elements, 0, $this->config['limit']);
             }
             // Return elements
             return $elements;
@@ -123,7 +148,11 @@ abstract class AbstractStream {
         ]);
         // Process data
         return $promise->then(function($response) {
-            return $response->getHeader('Content-Type')[0];
+            $values = $response->getHeader('Content-Type');
+            if(!count($values)) {
+                throw new Exception("No content type returned");
+            }
+            return $values[0];
         });
     }
     
@@ -162,7 +191,7 @@ abstract class AbstractStream {
             }
             // PNG
             else {
-                // Inspired from : https://github.com/tommoor/fastimage/blob/master/Fastimage.php
+                // https://github.com/tommoor/fastimage/blob/master/Fastimage.php
                 list(, $width, $height) = unpack('N*', substr($data, 16, 8));
             }
             return [

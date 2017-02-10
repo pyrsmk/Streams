@@ -54,10 +54,6 @@ class Directory extends FileSystem {
                 if($type == 'video') {
                     $elements[$id]['preview'] = null;
                 }
-                // Limit elements
-                if($this->config['limit'] !== null && count($elements) == $this->config['limit']) {
-                    break;
-                }
             }
             return $elements;
         });

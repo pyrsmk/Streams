@@ -20,15 +20,9 @@ class Playlist extends Youtube {
     protected function _getElements() {
         // Prepare
         $nsfw = $this->config['nsfw'] ? 'none' : 'strict';
-        if($this->config['limit'] === null || $this->config['limit'] > 50) {
-            $maxResults = 50;
-        }
-        else {
-            $maxResults = $this->config['limit'];
-        }
         // Load the first page
         return $this->_createRequest('/playlistItems', [
-            'maxResults' => $maxResults,
+            'maxResults' => $this->per_page,
             'playlistId' => $this->id,
             'part' => 'snippet'
         ])->then(function($data) use($maxResults, $nsfw) {
@@ -51,10 +45,6 @@ class Playlist extends Youtube {
                 }
             };
             $getNextPage($data);
-            // Limit elements
-            if($this->config['limit'] !== null && count($elements) > $this->config['limit']) {
-                $elements = array_slice($elements, 0, $this->config['limit']);
-            }
             return $elements;
         });
     }

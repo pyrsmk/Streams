@@ -34,11 +34,7 @@ class User extends Reddit {
                     })->wait();
                 }
             };
-            $getNextPage($data);            
-            // Limit elements
-            if($this->config['limit'] !== null && count($elements) > $this->config['limit']) {
-                $elements = array_slice($elements, 0, $this->config['limit']);
-            }
+            $getNextPage($data);
             return $elements;
         });
     }

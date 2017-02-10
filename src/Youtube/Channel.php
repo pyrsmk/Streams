@@ -20,20 +20,13 @@ class Channel extends Youtube {
     protected function _getElements() {
         // Prepare
         $nsfw = $this->config['nsfw'] ? 'none' : 'strict';
-        if($this->config['limit'] === null || $this->config['limit'] > 50) {
-            $maxResults = 50;
-        }
-        else {
-            $maxResults = $this->config['limit'];
-        }
-        // Get avatar
         $avatar = null;
         $this->_getAvatar($this->id)->then(function($url) use(&$avatar) {
             $avatar = $url;
         })->wait();
         // Load the first page
         return $this->_createRequest('/search', [
-            'maxResults' => $maxResults,
+            'maxResults' => $this->per_page,
             'channelId' => $this->id,
             'part' => 'snippet',
             'type' => 'video',
@@ -62,10 +55,6 @@ class Channel extends Youtube {
                 }
             };
             $getNextPage($data);
-            // Limit elements
-            if($this->config['limit'] !== null && count($elements) > $this->config['limit']) {
-                $elements = array_slice($elements, 0, $this->config['limit']);
-            }
             return $elements;
         });
     }

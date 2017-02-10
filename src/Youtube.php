@@ -29,6 +29,16 @@ abstract class Youtube extends AbstractStream {
     }
     
     /*
+        Return the allowed max results per page
+        
+        Return
+            integer
+    */
+    protected function _getMaxResultsPerPage() {
+        return 50;
+    }
+    
+    /*
         Create a request
         
         Parameters

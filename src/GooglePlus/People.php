@@ -17,17 +17,9 @@ class People extends GooglePlus {
             GuzzleHttp\Promise\Promise
     */
     protected function _getElements() {
-        // Compute how many posts per page we need
-        if($this->config['limit'] === null || $this->config['limit'] > 100) {
-            $maxResults = 100;
-        }
-        else {
-            $maxResults = $this->config['limit'];
-        }
-        // Load the first page
         return $this->_createRequest(
             "/people/$this->id/activities/public",
-            ['maxResults' => $maxResults]
+            ['maxResults' => $this->per_page]
         )->then(function($data) use($maxResults) {
             // Parse posts
             $elements = $this->_parsePosts($data['items']);
@@ -46,10 +38,6 @@ class People extends GooglePlus {
                 }
             };
             $getNextPage($data);
-            // Limit elements
-            if($this->config['limit'] !== null && count($elements) > $this->config['limit']) {
-                $elements = array_slice($elements, 0, $this->config['limit']);
-            }
             return $elements;
         });
     }

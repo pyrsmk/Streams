@@ -29,6 +29,16 @@ abstract class GooglePlus extends AbstractStream {
     }
     
     /*
+        Return the allowed max results per page
+        
+        Return
+            integer
+    */
+    protected function _getMaxResultsPerPage() {
+        return 100;
+    }
+    
+    /*
         Create a request
         
         Parameters

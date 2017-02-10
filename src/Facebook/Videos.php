@@ -41,10 +41,6 @@ class Videos extends Facebook {
             ) {
                 $elements = array_merge($elements, $this->_parsePosts($data));
             }
-            // Limit elements
-            if($this->config['limit'] !== null && count($elements) > $this->config['limit']) {
-                $elements = array_slice($elements, 0, $this->config['limit']);
-            }
             return $elements;
         });
     }
