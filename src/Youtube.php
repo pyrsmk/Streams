@@ -79,14 +79,14 @@ abstract class Youtube extends AbstractStream {
             $elements = $this->_parsePosts($data['items'], $avatar);
             // Get remaining data
             $getNextPage = function($data) use($endpoint, $query, &$getNextPage, &$elements, $avatar) {
-                if(isset($data['nextPageToken'])) {
-                    $query['pageToken'] = $data['nextPageToken'];
-                    $this->_createRequest($endpoint, $query)->then(function($data) use(&$getNextPage, &$elements, $avatar) {
-                        $elements = array_merge($elements, $this->_parsePosts($data['items'], $avatar));
-                        if($this->config['limit'] === null || count($elements) < $this->config['limit']) {
+                if($this->config['limit'] === null || count($elements) < $this->config['limit']) {
+                    if(isset($data['nextPageToken'])) {
+                        $query['pageToken'] = $data['nextPageToken'];
+                        $this->_createRequest($endpoint, $query)->then(function($data) use(&$getNextPage, &$elements, $avatar) {
+                            $elements = array_merge($elements, $this->_parsePosts($data['items'], $avatar));
                             $getNextPage($data);
-                        }
-                    })->wait();
+                        })->wait();
+                    }
                 }
             };
             $getNextPage($data);

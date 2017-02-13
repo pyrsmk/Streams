@@ -64,15 +64,15 @@ abstract class Reddit extends AbstractStream {
             $elements = $this->_parsePosts($data['data']['children']);
             // Get remaining data
             $getNextPage = function($data) use($endpoint, &$getNextPage, &$elements) {
-                if(isset($data['data']['after'])) {
-                    $this->_createRequest($endpoint, [
-                        'after' => $data['data']['after']
-                    ])->then(function($data) use(&$getNextPage, &$elements) {
-                        $elements = array_merge($elements, $this->_parsePosts($data['data']['children']));
-                        if($this->config['limit'] === null || count($elements) < $this->config['limit']) {
+                if($this->config['limit'] === null || count($elements) < $this->config['limit']) {
+                    if(isset($data['data']['after'])) {
+                        $this->_createRequest($endpoint, [
+                            'after' => $data['data']['after']
+                        ])->then(function($data) use(&$getNextPage, &$elements) {
+                            $elements = array_merge($elements, $this->_parsePosts($data['data']['children']));
                             $getNextPage($data);
-                        }
-                    })->wait();
+                        })->wait();
+                    }
                 }
             };
             $getNextPage($data);

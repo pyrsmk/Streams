@@ -73,18 +73,20 @@ abstract class GooglePlus extends AbstractStream {
             // Parse posts
             $elements = $this->_parsePosts($data['items']);
             // Get remaining data
-            $getNextPage = function($data) use($endpoint, $query, &$getNextPage, &$elements) {
-                if(isset($data['nextPageToken'])) {
-                    $query['pageToken'] = $data['nextPageToken'];
-                    $this->_createRequest($endpoint, $query)->then(function($data) use(&$getNextPage, &$elements) {
-                        $elements = array_merge($elements, $this->_parsePosts($data['items']));
-                        if($this->config['limit'] === null || count($elements) < $this->config['limit']) {
-                            $getNextPage($data);
-                        }
-                    })->wait();
-                }
-            };
-            $getNextPage($data);
+            if($this->config['limit'] === null || count($elements) < $this->config['limit']) {
+                $getNextPage = function($data) use($endpoint, $query, &$getNextPage, &$elements) {
+                    if(isset($data['nextPageToken'])) {
+                        $query['pageToken'] = $data['nextPageToken'];
+                        $this->_createRequest($endpoint, $query)->then(function($data) use(&$getNextPage, &$elements) {
+                            $elements = array_merge($elements, $this->_parsePosts($data['items']));
+                            if($this->config['limit'] === null || count($elements) < $this->config['limit']) {
+                                $getNextPage($data);
+                            }
+                        })->wait();
+                    }
+                };
+                $getNextPage($data);
+            }
             return $elements;
         });
     }

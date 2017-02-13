@@ -65,7 +65,7 @@ abstract class DeviantArt extends AbstractStream {
             'Accept-Encoding' => 'gzip, deflate, lzma, sdch, br',
             'Accept-Language' => 'fr-FR,fr;q=0.8,en-US;q=0.6,en;q=0.4'
         ];
-        // Get access token
+        // Get an access token
         if(!isset($this->token)) {
             $this->guzzle->getAsync('https://www.deviantart.com/oauth2/token', [
                 'query' => [
@@ -108,34 +108,19 @@ abstract class DeviantArt extends AbstractStream {
         return $this->_createRequest($endpoint, $query)->then(function($data) use($endpoint, $query) {
             // Parse posts
             $elements = $this->_parsePosts($data['results']);
-            // Load remaining data
-            if($this->config['limit'] === null || count($elements) < $this->config['limit']) {
-                // Prepare
-                $requests = [];
-                $start = count($elements) + 1;
-                if($this->config['limit'] === null) {
-                    $end = $data['estimated_total'];
+            // Get remaining data
+            $getNextPage = function($data) use($endpoint, $query, &$getNextPage, &$elements) {
+                if($this->config['limit'] === null || count($elements) < $this->config['limit']) {
+                    if($data['has_more']) {
+                        $query['offset'] = $data['next_offset'];
+                        $this->_createRequest($endpoint, $query)->then(function($data) use(&$getNextPage, &$elements) {
+                            $elements = array_merge($elements, $this->_parsePosts($data['results']));
+                            $getNextPage($data);
+                        })->wait();
+                    }
                 }
-                else {
-                    $end = $this->config['limit'] < $data['estimated_total'] ? $this->config['limit'] : $data['estimated_total'];
-                }
-                // Create further requests
-                for($offset=$start, $j=$end; $offset<$j; $offset+=$this->per_page) {
-                    $requests[] = function() use($endpoint, $query, &$elements, $offset) {
-                        // Set offset
-                        $query['offset'] = $offset;
-                        // Add new request
-                        return $this->_createRequest($endpoint, $query)->then(function($data) use(&$elements) {
-                            foreach($this->_parsePosts($data['results']) as $id => $element) {
-                                $elements[$id] = $element;
-                            }
-                        });
-                    };
-                }
-                // Run all requests
-                $pool = new GuzzleHttp\Pool($this->guzzle, $requests);
-                $pool->promise()->wait();
-            }
+            };
+            $getNextPage($data);
             return $elements;
         });
     }
@@ -215,7 +200,7 @@ abstract class DeviantArt extends AbstractStream {
                 strip_tags(
                     preg_replace(
                         [
-                            '/\\<br \\/\\>/',
+                            '/<br \\/>/',
                             '/<script\b[^>]*>(.*?)<\\/script>/is'
                         ],
                         [
