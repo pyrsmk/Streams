@@ -26,11 +26,22 @@ abstract class AbstractStream {
             string $key
     */
     public function __construct($id, array $config = []) {
+        // Prepare
+        $types = ['text', 'image', 'video', 'embed'];
+        // Register vars
         $this->id = $id;
         $this->config = $config;
+        // Init config
+        $this->config['get'] = isset($this->config['get']) ? $this->config['get'] : $types;
+        foreach($this->config['get'] as $type) {
+            if(!in_array($type, $types)) {
+                throw new Exception("Invalid '$type' type in 'get' parameter");
+            }
+        }
         $this->config['nsfw'] = isset($this->config['nsfw']) ? $this->config['nsfw'] : false;
         $this->config['limit'] = isset($this->config['limit']) ? $this->config['limit'] : null;
         $this->config['mimetype'] = isset($this->config['mimetype']) ? $this->config['mimetype'] : false;
+        // Init per_page var
         $max_results = $this->_getMaxResultsPerPage();
         if($max_results !== null) {
             if($this->config['limit'] === null || $this->config['limit'] > $max_results) {
@@ -111,6 +122,24 @@ abstract class AbstractStream {
             GuzzleHttp\Promise\Promise
     */
     abstract protected function _getElements();
+    
+    /*
+        Filter elements according to 'get' config parameter
+        
+        Parameters
+            array $elements
+        
+        Return
+            array
+    */
+    protected function _filter($elements) {
+        foreach($elements as $id => $element) {
+            if(!in_array($element['type'], $this->config['get'])) {
+                unset($elements[$id]);
+            }
+        }
+        return $elements;
+    }
     
     /*
         Generate a new ID for an element

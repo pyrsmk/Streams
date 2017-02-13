@@ -1,0 +1,5 @@
+{
+    "require": {
+        "pyrsmk/funktions": "^0.2.4"
+    }
+}

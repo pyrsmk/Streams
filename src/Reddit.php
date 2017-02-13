@@ -104,7 +104,7 @@ abstract class Reddit extends AbstractStream {
             // Base
             $elements[$id] = [
                 'date' => $post['data']['created'],
-                'permalink' => "https://reddit.com{$post['data']['permalink']}",
+                'permalink' => $post['data']['url'],
                 'title' => $post['data']['title'],
                 'description' => null,
                 'author' => $post['data']['author'],
@@ -113,7 +113,7 @@ abstract class Reddit extends AbstractStream {
             // Text
             if(!isset($post['data']['preview'])) {
                 $elements[$id]['type'] = 'text';
-                $elements[$id]['description'] = $post['data']['selftext_html'];
+                $elements[$id]['description'] = htmlspecialchars_decode($post['data']['selftext_html']);
             }
             // Image
             else if($post['data']['media'] === null) {
@@ -142,7 +142,7 @@ abstract class Reddit extends AbstractStream {
         // Populate last fields
         $pool = new GuzzleHttp\Pool($this->guzzle, $requests);
         $pool->promise()->wait();
-        return $elements;
+        return $this->_filter($elements);
     }
     
 }

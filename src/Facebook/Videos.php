@@ -86,7 +86,7 @@ class Videos extends Facebook {
                 'avatar' => "http://graph.facebook.com/$this->id/picture?type=large"
             ];
         }
-        return $elements;
+        return $this->_filter($elements);
     }
     
 }

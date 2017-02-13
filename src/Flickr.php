@@ -177,7 +177,7 @@ abstract class Flickr extends AbstractStream {
         // Populate last fields
         $pool = new GuzzleHttp\Pool($this->guzzle, $requests);
         $pool->promise()->wait();
-        return $elements;
+        return $this->_filter($elements);
     }
     
     /*

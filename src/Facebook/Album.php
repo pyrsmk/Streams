@@ -102,7 +102,7 @@ class Album extends Facebook {
         $this->guzzle = new GuzzleHttp\Client(['verify' => false]);
         $pool = new GuzzleHttp\Pool($this->guzzle, $requests);
         $pool->promise()->wait();
-        return $elements;
+        return $this->_filter($elements);
     }
     
 }
