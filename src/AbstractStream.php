@@ -207,7 +207,8 @@ abstract class AbstractStream {
         $promise = $this->guzzle->getAsync($url, [
             'curl' => [
                 CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_HTTPHEADER => ['Range: bytes=0-32768']
+                CURLOPT_HTTPHEADER => ['Range: bytes=0-65536'],
+                CURLOPT_TIMEOUT => 1
             ]
         ]);
         // Process data
