@@ -24,7 +24,6 @@ abstract class Flickr extends AbstractStream {
         if(!isset($config['api'])) {
             throw new Exception("'api' parameter must be defined");
         }
-        $config['description'] = isset($config['description']) ? $config['description'] : false;
         $this->guzzle = new GuzzleHttp\Client(['verify' => false]);
         parent::__construct($id, $config);
     }
