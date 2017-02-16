@@ -95,18 +95,6 @@ function verifyConsistency(array $elements) {
         }
     }
 }
- /*
-    foreach($fields as $field) {
-        if(!array_key_exists($field, $element)) {
-            throw new Exception("'$field' field not found");
-        }
-    }
-    foreach($element as $field => $value) {
-        if(!in_array($field, $fields)) {
-            throw new Exception("'$field' field not supported");
-        }
-    }
-*/
 
 ################################################## Run tests
 
