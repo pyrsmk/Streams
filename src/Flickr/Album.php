@@ -3,6 +3,7 @@
 namespace Streams\Flickr;
 
 use Streams\Flickr;
+use Streams\Exception;
 
 /*
     Flickr album stream

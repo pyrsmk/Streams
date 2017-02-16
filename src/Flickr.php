@@ -6,6 +6,9 @@ use GuzzleHttp;
 
 /*
     Base Flickr stream class
+    
+    API
+        https://www.flickr.com/services/api/
 */
 abstract class Flickr extends AbstractStream {
     
@@ -82,11 +85,11 @@ abstract class Flickr extends AbstractStream {
             $ownername = isset($data[$datagroup]['ownername']) ? $data[$datagroup]['ownername'] : $data[$datagroup]['photo'][0]['ownername'];
             $elements = $this->_parsePosts($data[$datagroup]['photo'], $ownername, $query['user_id']);
             // Load remaining data
-            if($this->config['limit'] === null || count($elements) < $this->config['limit']) {
+            if(empty($this->config['limit']) || count($elements) < $this->config['limit']) {
                 // Prepare
                 $requests = [];
                 $start = count($elements) + 1;
-                if($this->config['limit'] === null) {
+                if(empty($this->config['limit'])) {
                     $end = $data[$datagroup]['total'];
                 }
                 else {
@@ -137,11 +140,9 @@ abstract class Flickr extends AbstractStream {
             $id = $this->_getNewId();
             // Base
             $elements[$id] = [
-                'date' => $post['dateupload'],
+                'date' => (int)$post['dateupload'],
                 'permalink' => "https://www.flickr.com/photos/$user_id/{$post['id']}/in/dateposted/",
                 'title' => $post['title'],
-                'width' => $post['width_l'],
-                'height' => $post['height_l'],
                 'author' => $ownername,
                 'avatar' => $post['iconserver'] > 0 ?
                             "http://farm{$post['iconfarm']}.staticflickr.com/{$post['iconserver']}/buddyicons/$user_id.jpg" :
@@ -154,7 +155,7 @@ abstract class Flickr extends AbstractStream {
                 });
             };
             // Image
-            if($post['media'] == 'photo') {
+            if($post['media'] == 'photo' && isset($post['url_l'])) {
                 $requests[] = function() use($post, &$elements, $id) {
                     return $this->_getMimetype($post['url_l'])->then(function($mimetype) use(&$elements, $id) {
                         $elements[$id]['mimetype'] = $mimetype;
@@ -164,13 +165,21 @@ abstract class Flickr extends AbstractStream {
                 };
                 $elements[$id]['type'] = 'image';
                 $elements[$id]['source'] = $post['url_l'];
+                $elements[$id]['width'] = (int)$post['width_l'];
+                $elements[$id]['height'] = (int)$post['height_l'];
             }
             // Embed
-            else if($post['media'] == 'video') {
+            else if($post['media'] == 'video' && isset($post['url_l'])) {
                 $elements[$id]['type'] = 'embed';
                 $elements[$id]['html'] =
                     "<object type=\"application/x-shockwave-flash\" width=\"{$post['width_l']}\" height=\"{$post['height_l']}\" data=\"https://www.flickr.com/apps/video/stewart.swf?photo_id={$post['id']}&photo_secret={$post['secret']}\"  classid=\"clsid:D27CDB6E-AE6D-11cf-96B8-444553540000\"><param name=\"flashvars\" value=\"flickr_show_info_box=true\"></param><param name=\"movie\" value=\"https://www.flickr.com/apps/video/stewart.swf?photo_id={$post['id']}&photo_secret={$post['secret']}\"></param><param name=\"bgcolor\" value=\"#000000\"></param><param name=\"allowFullScreen\" value=\"true\"></param><embed type=\"application/x-shockwave-flash\" src=\"https://www.flickr.com/apps/video/stewart.swf?photo_id={$post['id']}&photo_secret={$post['secret']}\" bgcolor=\"#000000\" allowfullscreen=\"true\" flashvars=\"flickr_show_info_box=true\" width=\"{$post['width_l']}\" height=\"{$post['height_l']}\"></embed></object>";
                 $elements[$id]['preview'] = $post['url_l'];
+                $elements[$id]['width'] = (int)$post['width_l'];
+                $elements[$id]['height'] = (int)$post['height_l'];
+            }
+            else {
+                array_pop($requests);
+                unset($elements[$id]);
             }
         }
         // Populate last fields

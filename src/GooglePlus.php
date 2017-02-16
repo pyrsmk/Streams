@@ -6,6 +6,9 @@ use GuzzleHttp;
 
 /*
     Base GooglePlus stream class
+    
+    API
+        https://developers.google.com/+/web/api/rest/latest/
 */
 abstract class GooglePlus extends AbstractStream {
     
@@ -73,13 +76,13 @@ abstract class GooglePlus extends AbstractStream {
             // Parse posts
             $elements = $this->_parsePosts($data['items']);
             // Get remaining data
-            if($this->config['limit'] === null || count($elements) < $this->config['limit']) {
+            if(empty($this->config['limit']) || count($elements) < $this->config['limit']) {
                 $getNextPage = function($data) use($endpoint, $query, &$getNextPage, &$elements) {
                     if(isset($data['nextPageToken'])) {
                         $query['pageToken'] = $data['nextPageToken'];
                         $this->_createRequest($endpoint, $query)->then(function($data) use(&$getNextPage, &$elements) {
                             $elements = array_merge($elements, $this->_parsePosts($data['items']));
-                            if($this->config['limit'] === null || count($elements) < $this->config['limit']) {
+                            if(empty($this->config['limit']) || count($elements) < $this->config['limit']) {
                                 $getNextPage($data);
                             }
                         })->wait();
@@ -125,18 +128,12 @@ abstract class GooglePlus extends AbstractStream {
             else if($post['object']['attachments'][0]['objectType'] == 'photo') {
                 $elements[$id]['type'] = 'image';
                 $elements[$id]['source'] = $post['object']['attachments'][0]['fullImage']['url'];
+                $elements[$id]['width'] = $post['object']['attachments'][0]['fullImage']['width'];
+                $elements[$id]['height'] = $post['object']['attachments'][0]['fullImage']['height'];
                 $requests[] = function() use($post, &$elements, $id) {
                     $url = $post['object']['attachments'][0]['fullImage']['url'];
                     return $this->_getMimetype($url)->then(function($mimetype) use(&$elements, $id) {
                         $elements[$id]['mimetype'] = $mimetype;
-                    }, function() use(&$elements, $id) {
-                        unset($elements[$id]);
-                    });
-                };
-                $requests[] = function() use($post, &$elements, $id) {
-                    return $this->_getImageSize($elements[$id]['source'])->then(function($size) use(&$elements, $id) {
-                        $elements[$id]['width'] = $size['width'];
-                        $elements[$id]['height'] = $size['height'];
                     }, function() use(&$elements, $id) {
                         unset($elements[$id]);
                     });

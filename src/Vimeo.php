@@ -6,6 +6,9 @@ use GuzzleHttp;
 
 /*
     Base Vimeo stream class
+    
+    API
+        https://developer.vimeo.com/api/endpoints
 */
 abstract class Vimeo extends AbstractStream {
     
@@ -66,7 +69,7 @@ abstract class Vimeo extends AbstractStream {
             })->wait();
         }
         // NSFW
-        if($this->config['nsfw']) {
+        if(!$this->config['nsfw']) {
             $query['filter'] = 'content_rating';
             $query['filter_content_rating'] = 'safe,unrated';
         }
@@ -97,15 +100,15 @@ abstract class Vimeo extends AbstractStream {
             GuzzleHttp\Promise\Promise
     */
     protected function _paginate($endpoint, array $query = []) {
-        return $this->_createRequest($endpoint, $query)->then(function($data) {
+        return $this->_createRequest($endpoint, $query)->then(function($data) use($endpoint, $query) {
             // Parse posts
             $elements = $this->_parsePosts($data['data']);
             // Load remaining data
-            if($this->config['limit'] === null || count($elements) < $this->config['limit']) {
+            if(empty($this->config['limit']) || count($elements) < $this->config['limit']) {
                 // Prepare
                 $requests = [];
                 $start = count($elements) + 1;
-                if($this->config['limit'] === null) {
+                if(empty($this->config['limit'])) {
                     $end = $data['total'];
                 }
                 else {
@@ -114,11 +117,11 @@ abstract class Vimeo extends AbstractStream {
                 $end = ceil($end/$this->per_page);
                 // Create further requests
                 for($page=2, $j=$end; $page<$j; ++$page) {
-                    $requests[] = function() use($query, &$elements, $page) {
+                    $requests[] = function() use($endpoint, $query, &$elements, $page) {
                         // Set page
                         $query['page'] = $page;
                         // Add new request
-                        return $this->_createRequest($query)->then(function($data) use($query, &$elements) {
+                        return $this->_createRequest($endpoint, $query)->then(function($data) use(&$elements) {
                             $posts = $this->_parsePosts($data['data']);
                             foreach($posts as $id => $element) {
                                 $elements[$id] = $element;

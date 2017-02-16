@@ -6,6 +6,9 @@ use GuzzleHttp\Promise\Promise;
 
 /*
     Base Facebook stream class
+    
+    API
+        https://developers.facebook.com/docs/graph-api/reference/
 */
 abstract class Facebook extends AbstractStream {
     

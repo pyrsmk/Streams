@@ -19,8 +19,7 @@ class Gallery extends DeviantArt {
         return $this->_paginate("/gallery/all", [
             'username' => $this->id,
             'limit' => $this->per_page,
-            'mode' => 'newest',
-            'mature_content' => $this->config['nsfw']
+            'mode' => 'newest'
         ]);
     }
     

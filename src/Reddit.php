@@ -6,6 +6,10 @@ use GuzzleHttp;
 
 /*
     Base Reddit stream class
+    
+    API
+        https://www.reddit.com/dev/api/
+        http://stackoverflow.com/questions/11350481/reddit-api-pulling-images-from-subreddit
 */
 abstract class Reddit extends AbstractStream {
     
@@ -64,7 +68,7 @@ abstract class Reddit extends AbstractStream {
             $elements = $this->_parsePosts($data['data']['children']);
             // Get remaining data
             $getNextPage = function($data) use($endpoint, &$getNextPage, &$elements) {
-                if($this->config['limit'] === null || count($elements) < $this->config['limit']) {
+                if(empty($this->config['limit']) || count($elements) < $this->config['limit']) {
                     if(isset($data['data']['after'])) {
                         $this->_createRequest($endpoint, [
                             'after' => $data['data']['after']
@@ -97,13 +101,16 @@ abstract class Reddit extends AbstractStream {
         foreach($posts as $post) {
             // NSFW verification
             if(!$this->config['nsfw'] && $post['data']['over_18']) {
-                return;
+                continue;
             }
             // Prepare
             $id = $this->_getNewId();
             // Base
+            if(!isset($post['data']['url'])) {
+                continue;
+            }
             $elements[$id] = [
-                'date' => $post['data']['created'],
+                'date' => (int)$post['data']['created'],
                 'permalink' => $post['data']['url'],
                 'title' => $post['data']['title'],
                 'description' => null,
@@ -111,12 +118,12 @@ abstract class Reddit extends AbstractStream {
                 'avatar' => null
             ];
             // Text
-            if(!isset($post['data']['preview'])) {
+            if(isset($post['data']['selftext_html'])) {
                 $elements[$id]['type'] = 'text';
                 $elements[$id]['description'] = htmlspecialchars_decode($post['data']['selftext_html']);
             }
             // Image
-            else if($post['data']['media'] === null) {
+            else if(isset($post['data']['preview']['images'][0]['source']['url'])) {
                 $elements[$id]['type'] = 'image';
                 $elements[$id]['source'] = str_replace('&amp;', '&', $post['data']['preview']['images'][0]['source']['url']);
                 $elements[$id]['width'] = $post['data']['preview']['images'][0]['source']['width'];
@@ -131,12 +138,15 @@ abstract class Reddit extends AbstractStream {
                 };
             }
             // Embed
-            else {
+            else if(isset($post['data']['media']['oembed']['html'])) {
                 $elements[$id]['type'] = 'embed';
                 $elements[$id]['html'] = htmlspecialchars_decode($post['data']['media']['oembed']['html']);
                 $elements[$id]['width'] = $post['data']['media']['oembed']['width'];
                 $elements[$id]['height'] = $post['data']['media']['oembed']['height'];
                 $elements[$id]['preview'] = $post['data']['media']['oembed']['thumbnail_url'];
+            }
+            else {
+                unset($elements[$id]);
             }
         }
         // Populate last fields

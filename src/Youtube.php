@@ -6,6 +6,9 @@ use GuzzleHttp;
 
 /*
     Base Youtube stream class
+    
+    API
+        https://developers.google.com/youtube/v3/docs/
 */
 abstract class Youtube extends AbstractStream {
     
@@ -79,7 +82,7 @@ abstract class Youtube extends AbstractStream {
             $elements = $this->_parsePosts($data['items'], $avatar);
             // Get remaining data
             $getNextPage = function($data) use($endpoint, $query, &$getNextPage, &$elements, $avatar) {
-                if($this->config['limit'] === null || count($elements) < $this->config['limit']) {
+                if(empty($this->config['limit']) || count($elements) < $this->config['limit']) {
                     if(isset($data['nextPageToken'])) {
                         $query['pageToken'] = $data['nextPageToken'];
                         $this->_createRequest($endpoint, $query)->then(function($data) use(&$getNextPage, &$elements, $avatar) {
@@ -145,8 +148,8 @@ abstract class Youtube extends AbstractStream {
             $requests[] = function() use($video_id, &$elements, $id) {                
                 return $this->_getVideo($video_id)->then(function($video) use(&$elements, $id) {
                     $elements[$id]['html'] = $video['html'];
-                    $elements[$id]['width'] = $video['width'];
-                    $elements[$id]['height'] = $video['height'];
+                    $elements[$id]['width'] = (int)$video['width'];
+                    $elements[$id]['height'] = (int)$video['height'];
                 }, function() use(&$elements, $id) {
                     unset($elements[$id]);
                 });

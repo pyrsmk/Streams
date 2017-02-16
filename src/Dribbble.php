@@ -6,6 +6,9 @@ use GuzzleHttp;
 
 /*
     Base Dribbble stream class
+    
+    API
+        http://developer.dribbble.com/v1/
 */
 abstract class Dribbble extends AbstractStream {
     
@@ -83,7 +86,7 @@ abstract class Dribbble extends AbstractStream {
             // Get remaining data
             $page = 1;
             $getNextPage = function($data) use($endpoint, $query, $avatar, &$page, &$getNextPage, &$elements) {
-                if($this->config['limit'] === null || count($elements) < $this->config['limit']) {
+                if(empty($this->config['limit']) || count($elements) < $this->config['limit']) {
                     $query['page'] = ++$page;
                     $this->_createRequest($endpoint, $query)->then(function($data) use($avatar, &$getNextPage, &$elements) {
                         if(count($data)) {

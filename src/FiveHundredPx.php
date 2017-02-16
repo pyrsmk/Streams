@@ -6,6 +6,10 @@ use GuzzleHttp;
 
 /*
     Base 500px stream class
+    
+    API
+        https://github.com/500px/api-documentation
+        https://github.com/500px/api-documentation/blob/master/basics/formats_and_terms.md#image-urls-and-image-sizes
 */
 abstract class FiveHundredPx extends AbstractStream {
     
@@ -13,6 +17,25 @@ abstract class FiveHundredPx extends AbstractStream {
         GuzzleHttp\Client $guzzle
     */
     protected $guzzle;
+    protected $sizes = [
+        1 => ['width' => 70, 'height' => 70],
+        2 => ['width' => 140, 'height' => 140],
+        3 => ['width' => 280, 'height' => 280],
+        100 => ['width' => 100, 'height' => 100],
+        200 => ['width' => 200, 'height' => 200],
+        440 => ['width' => 440, 'height' => 440],
+        600 => ['width' => 600, 'height' => 600],
+        4 => 900,
+        5 => 1170,
+        6 => ['height' => 1080],
+        20 => ['height' => 300],
+        21 => ['height' => 600],
+        30 => 256,
+        31 => ['height' => 450],
+        1080 => 1080,
+        1600 => 1600,
+        2048 => 2048,
+    ];
     
     /*
         Construct stream
@@ -78,11 +101,11 @@ abstract class FiveHundredPx extends AbstractStream {
             // Parse posts
             $elements = $this->_parsePosts($data['photos']);
             // Load remaining data
-            if($this->config['limit'] === null || count($elements) < $this->config['limit']) {
+            if(empty($this->config['limit']) || count($elements) < $this->config['limit']) {
                 // Prepare
                 $requests = [];
                 $start = count($elements) + 1;
-                if($this->config['limit'] === null) {
+                if(empty($this->config['limit'])) {
                     $end = $data['total_items'];
                 }
                 else {
@@ -129,7 +152,7 @@ abstract class FiveHundredPx extends AbstractStream {
             // Prepare
             $id = $this->_getNewId();
             // NSFW
-            if($this->config['nsfw'] && $post['nsfw']) {
+            if(!$this->config['nsfw'] && $post['nsfw']) {
                 continue;
             }
             // Image
@@ -186,11 +209,30 @@ abstract class FiveHundredPx extends AbstractStream {
     */
     protected function _getImage($id) {
         return $this->_createRequest("/photos/$id")->then(function($data) {
-            $image = ['source' => $data['photo']['image_url']];
-            $this->_getImageSize($data['photo']['image_url'])->then(function($size) use(&$image) {
-                $image['width'] = $size['width'];
-                $image['height'] = $size['height'];
-            })->wait();
+            // Guess image size
+            $size = $this->sizes[$data['photo']['images'][0]['size']];
+            if(is_int($size)) {
+                if($data['photo']['width'] > $data['photo']['height']) {
+                    $width = $size;
+                    $height = $data['photo']['height'] * $size / $data['photo']['width'];
+                }
+                else {
+                    $width = $data['photo']['width'] * $size / $data['photo']['height'];
+                    $height = $size;
+                }
+            }
+            else if(!isset($size['width'])) {
+                $width = $data['photo']['width'] * $size['height'] / $data['photo']['height'];
+                $height = $size['height'];
+            }
+            else {
+                $width = $size['width'];
+                $height = $size['height'];
+            }
+            // Extract data
+            $image['source'] = $data['photo']['images'][0]['url'];
+            $image['width'] = (int)$width;
+            $image['height'] = (int)$height;
             return $image;
         });
     }

@@ -6,6 +6,9 @@ use GuzzleHttp;
 
 /*
     Base DeviantArt stream class
+    
+    API
+        https://www.deviantart.com/developers/http/v1/20160316
 */
 abstract class DeviantArt extends AbstractStream {
     
@@ -110,7 +113,7 @@ abstract class DeviantArt extends AbstractStream {
             $elements = $this->_parsePosts($data['results']);
             // Get remaining data
             $getNextPage = function($data) use($endpoint, $query, &$getNextPage, &$elements) {
-                if($this->config['limit'] === null || count($elements) < $this->config['limit']) {
+                if(empty($this->config['limit']) || count($elements) < $this->config['limit']) {
                     if($data['has_more']) {
                         $query['offset'] = $data['next_offset'];
                         $this->_createRequest($endpoint, $query)->then(function($data) use(&$getNextPage, &$elements) {
@@ -142,6 +145,10 @@ abstract class DeviantArt extends AbstractStream {
         foreach($posts as $post) {
             // Prepare
             $id = $this->_getNewId();
+            // NSFW filter
+            if(!$this->config['nsfw'] && $post['is_mature']) {
+                continue;
+            }
             // Base
             $elements[$id] = [
                 'title' => $post['title'],
@@ -164,7 +171,7 @@ abstract class DeviantArt extends AbstractStream {
                 };
             }
             // Image
-            else {
+            else if(isset($post['content'])) {
                 $elements[$id]['type'] = 'image';
                 $elements[$id]['source'] = $post['content']['src'];
                 $elements[$id]['width'] = $post['content']['width'];
@@ -177,6 +184,9 @@ abstract class DeviantArt extends AbstractStream {
                         unset($elements[$id]);
                     });
                 };
+            }
+            else {
+                unset($elements[$id]);
             }
         }
         // Populate last fields

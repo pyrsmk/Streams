@@ -62,7 +62,7 @@ abstract class Instagram extends AbstractStream {
             $id = $this->_getNewId();
             // Base
             $elements[$id] = [
-                'date' => $post['created_time'],
+                'date' => (int)$post['created_time'],
                 'permalink' => $post['link'],
                 'title' => $post['caption']['text'],
                 'description' => null,

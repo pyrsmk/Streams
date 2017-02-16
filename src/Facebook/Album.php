@@ -40,7 +40,7 @@ class Album extends Facebook {
             $elements = $this->_parsePosts($data);
             // Get remaining data
             while(
-                ($this->config['limit'] === null || count($elements) < $this->config['limit']) &&
+                (empty($this->config['limit']) || count($elements) < $this->config['limit']) &&
                 $data = $this->facebook->next($data)
             ) {
                 $elements = array_merge($elements, $this->_parsePosts($data));

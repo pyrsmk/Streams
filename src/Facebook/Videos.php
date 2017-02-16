@@ -36,7 +36,7 @@ class Videos extends Facebook {
             $elements = $this->_parsePosts($data);
             // Get remaining data
             while(
-                ($this->config['limit'] === null || count($elements) < $this->config['limit']) &&
+                (empty($this->config['limit']) || count($elements) < $this->config['limit']) &&
                 $data = $this->facebook->next($data)
             ) {
                 $elements = array_merge($elements, $this->_parsePosts($data));
@@ -80,8 +80,8 @@ class Videos extends Facebook {
                 'title' => isset($post['title']) ? $post['title'] : null,
                 'description' => isset($post['description']) ? $post['description'] : null,
                 'preview' => $post['format'][$index]['picture'],
-                'width' => $matches[1],
-                'height' => $matches[2],
+                'width' => (int)$matches[1],
+                'height' => (int)$matches[2],
                 'author' => $this->name,
                 'avatar' => "http://graph.facebook.com/$this->id/picture?type=large"
             ];
