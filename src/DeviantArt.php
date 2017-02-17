@@ -29,10 +29,7 @@ abstract class DeviantArt extends AbstractStream {
         if(!isset($config['api']) || !isset($config['secret'])) {
             throw new Exception("'api' and 'secret' parameters must be defined");
         }
-        $this->guzzle = new GuzzleHttp\Client([
-            'verify' => false,
-            'timeout' => 3
-        ]);
+        $this->guzzle = new GuzzleHttp\Client(['verify' => false]);
         parent::__construct($id, $config);
     }
     
