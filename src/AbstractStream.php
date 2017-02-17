@@ -40,7 +40,6 @@ abstract class AbstractStream {
         }
         $this->config['nsfw'] = isset($this->config['nsfw']) ? $this->config['nsfw'] : false;
         $this->config['limit'] = isset($this->config['limit']) ? $this->config['limit'] : false;
-        $this->config['mimetype'] = isset($this->config['mimetype']) ? $this->config['mimetype'] : false;
         // Init per_page var
         $max_results = $this->_getMaxResultsPerPage();
         if($max_results !== null) {
