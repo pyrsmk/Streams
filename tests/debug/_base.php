@@ -9,7 +9,7 @@ set_time_limit(0);
 
 function runStream($getStream) {
     $t = microtime(true);
-    $getStream()->getElements()->then(function($elements) use($t) {
+    $getStream()->get()->then(function($elements) use($t) {
         echo 'Benchmark : ',round(microtime(true) - $t, 2),'s';
         debug($elements);
     })->wait();

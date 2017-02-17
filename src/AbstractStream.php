@@ -69,7 +69,7 @@ abstract class AbstractStream {
         Return
             GuzzleHttp\Promise\Promise
     */
-    public function getElements() {
+    public function get() {
         return $this->_getElements()->then(function($elements) {
             // Limit elements
             if(!empty($this->config['limit']) && count($elements) > $this->config['limit']) {

@@ -15,7 +15,7 @@ $suite->expects("limit: 10")
       ->that(function($suite) {
             $elements = [];
             $stream = new Streams\Vimeo\Group('animation', $suite['config']);
-            $stream->getElements()->then(function($data) use(&$elements) {
+            $stream->get()->then(function($data) use(&$elements) {
                 $elements = $data;
             })->wait();
             verifyConsistency($elements);
@@ -29,7 +29,7 @@ $suite->expects("limit: 100")
             $config = $suite['config'];
             $config['limit'] = 100;
             $stream = new Streams\Vimeo\Group('animation', $config);
-            $stream->getElements()->then(function($data) use(&$elements) {
+            $stream->get()->then(function($data) use(&$elements) {
                 $elements = $data;
             })->wait();
             verifyConsistency($elements);
@@ -43,7 +43,7 @@ $suite->expects("nsfw: true")
             $config = $suite['config'];
             $config['nsfw'] = true;
             $stream = new Streams\Vimeo\Group('307812', $config);
-            $stream->getElements()->then(function($data) use(&$elements) {
+            $stream->get()->then(function($data) use(&$elements) {
                 $elements = $data;
             })->wait();
             verifyConsistency($elements);
@@ -55,7 +55,7 @@ $suite->expects("nsfw: false")
       ->that(function($suite) {
             $elements = [];
             $stream = new Streams\Vimeo\Group('307812', $suite['config']);
-            $stream->getElements()->then(function($data) use(&$elements) {
+            $stream->get()->then(function($data) use(&$elements) {
                 $elements = $data;
             })->wait();
             verifyConsistency($elements);

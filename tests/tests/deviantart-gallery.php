@@ -15,7 +15,7 @@ $suite->expects("limit: 10")
       ->that(function($suite) {
             $elements = [];
             $stream = new Streams\DeviantArt\Gallery('aceofspades762', $suite['config']);
-            $stream->getElements()->then(function($data) use(&$elements) {
+            $stream->get()->then(function($data) use(&$elements) {
                 $elements = $data;
             })->wait();
             verifyConsistency($elements);
@@ -29,7 +29,7 @@ $suite->expects("limit: false")
             $config = $suite['config'];
             $config['limit'] = false;
             $stream = new Streams\DeviantArt\Gallery('aceofspades762', $config);
-            $stream->getElements()->then(function($data) use(&$elements) {
+            $stream->get()->then(function($data) use(&$elements) {
                 $elements = $data;
             })->wait();
             verifyConsistency($elements);
@@ -43,7 +43,7 @@ $suite->expects("nsfw: true")
             $config = $suite['config'];
             $config['nsfw'] = true;
             $stream = new Streams\DeviantArt\Gallery('ntih2', $config);
-            $stream->getElements()->then(function($data) use(&$elements) {
+            $stream->get()->then(function($data) use(&$elements) {
                 $elements = $data;
             })->wait();
             verifyConsistency($elements);
@@ -55,7 +55,7 @@ $suite->expects("nsfw: false")
       ->that(function($suite) {
             $elements = [];
             $stream = new Streams\DeviantArt\Gallery('ntih2', $suite['config']);
-            $stream->getElements()->then(function($data) use(&$elements) {
+            $stream->get()->then(function($data) use(&$elements) {
                 $elements = $data;
             })->wait();
             verifyConsistency($elements);

@@ -19,7 +19,7 @@ foreach($types as $type) {
                 $config = $suite['config'];
                 $config['type'] = $type;
                 $stream = new Streams\Reddit\Subreddit('earthporn', $config);
-                $stream->getElements()->then(function($data) use(&$elements) {
+                $stream->get()->then(function($data) use(&$elements) {
                     $elements = $data;
                 })->wait();
                 verifyConsistency($elements);
@@ -34,7 +34,7 @@ $suite->expects("limit: 100")
             $config = $suite['config'];
             $config['limit'] = 100;
             $stream = new Streams\Reddit\Subreddit('earthporn', $config);
-            $stream->getElements()->then(function($data) use(&$elements) {
+            $stream->get()->then(function($data) use(&$elements) {
                 $elements = $data;
             })->wait();
             verifyConsistency($elements);
@@ -48,7 +48,7 @@ $suite->expects("nsfw: true")
             $config = $suite['config'];
             $config['nsfw'] = true;
             $stream = new Streams\Reddit\Subreddit('gonewild', $config);
-            $stream->getElements()->then(function($data) use(&$elements) {
+            $stream->get()->then(function($data) use(&$elements) {
                 $elements = $data;
             })->wait();
             verifyConsistency($elements);
@@ -60,7 +60,7 @@ $suite->expects("nsfw: false")
       ->that(function($suite) {
             $elements = [];
             $stream = new Streams\Reddit\Subreddit('gonewild', $suite['config']);
-            $stream->getElements()->then(function($data) use(&$elements) {
+            $stream->get()->then(function($data) use(&$elements) {
                 $elements = $data;
             })->wait();
             verifyConsistency($elements);

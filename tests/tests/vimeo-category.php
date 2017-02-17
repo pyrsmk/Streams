@@ -15,7 +15,7 @@ $suite->expects("limit: 10")
       ->that(function($suite) {
             $elements = [];
             $stream = new Streams\Vimeo\Category('food', $suite['config']);
-            $stream->getElements()->then(function($data) use(&$elements) {
+            $stream->get()->then(function($data) use(&$elements) {
                 $elements = $data;
             })->wait();
             verifyConsistency($elements);
@@ -29,7 +29,7 @@ $suite->expects("limit: 100")
             $config = $suite['config'];
             $config['limit'] = 100;
             $stream = new Streams\Vimeo\Category('food', $config);
-            $stream->getElements()->then(function($data) use(&$elements) {
+            $stream->get()->then(function($data) use(&$elements) {
                 $elements = $data;
             })->wait();
             verifyConsistency($elements);

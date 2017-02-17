@@ -13,7 +13,7 @@ $suite->expects("limit: 10")
       ->that(function($suite) {
             $elements = [];
             $stream = new Streams\Reddit\User('hansiphoto', $suite['config']);
-            $stream->getElements()->then(function($data) use(&$elements) {
+            $stream->get()->then(function($data) use(&$elements) {
                 $elements = $data;
             })->wait();
             verifyConsistency($elements);
@@ -27,7 +27,7 @@ $suite->expects("limit: false")
             $config = $suite['config'];
             $config['limit'] = false;
             $stream = new Streams\Reddit\User('hansiphoto', $config);
-            $stream->getElements()->then(function($data) use(&$elements) {
+            $stream->get()->then(function($data) use(&$elements) {
                 $elements = $data;
             })->wait();
             verifyConsistency($elements);
@@ -41,7 +41,7 @@ $suite->expects("nsfw: true")
             $config = $suite['config'];
             $config['nsfw'] = true;
             $stream = new Streams\Reddit\User('NakedKatie', $config);
-            $stream->getElements()->then(function($data) use(&$elements) {
+            $stream->get()->then(function($data) use(&$elements) {
                 $elements = $data;
             })->wait();
             verifyConsistency($elements);
@@ -53,7 +53,7 @@ $suite->expects("nsfw: false")
       ->that(function($suite) {
             $elements = [];
             $stream = new Streams\Reddit\User('NakedKatie', $suite['config']);
-            $stream->getElements()->then(function($data) use(&$elements) {
+            $stream->get()->then(function($data) use(&$elements) {
                 $elements = $data;
             })->wait();
             verifyConsistency($elements);

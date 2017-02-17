@@ -14,7 +14,7 @@ $suite->expects("limit: 10")
       ->that(function($suite) {
             $elements = [];
             $stream = new Streams\GooglePlus\People('+frandroid', $suite['config']);
-            $stream->getElements()->then(function($data) use(&$elements) {
+            $stream->get()->then(function($data) use(&$elements) {
                 $elements = $data;
             })->wait();
             verifyConsistency($elements);
@@ -28,7 +28,7 @@ $suite->expects("limit: 100")
             $config = $suite['config'];
             $config['limit'] = 100;
             $stream = new Streams\GooglePlus\People('+frandroid', $config);
-            $stream->getElements()->then(function($data) use(&$elements) {
+            $stream->get()->then(function($data) use(&$elements) {
                 $elements = $data;
             })->wait();
             verifyConsistency($elements);
