@@ -31,7 +31,7 @@ abstract class DeviantArt extends AbstractStream {
         }
         $this->guzzle = new GuzzleHttp\Client([
             'verify' => false,
-            'timeout' => 2
+            'timeout' => 3
         ]);
         parent::__construct($id, $config);
     }
