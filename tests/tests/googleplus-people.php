@@ -5,7 +5,6 @@ $suite = new MiniSuite\Suite('GooglePlus\People');
 $suite->hydrate(function($suite) {
     $suite['config'] = [
         'api' => 'AIzaSyAlKfOvbX_fJG7fNR7_H3N5HW8teFI_GO0',
-        'nsfw' => false,
         'limit' => 10
     ];
 });

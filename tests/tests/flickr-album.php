@@ -5,7 +5,6 @@ $suite = new MiniSuite\Suite('Flickr\Album');
 $suite->hydrate(function($suite) {
     $suite['config'] = [
         'api' => '6f7073b4b647bb19088a7bae5189421d',
-        'nsfw' => false,
         'limit' => 10
     ];
 });

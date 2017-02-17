@@ -12,7 +12,7 @@ $suite->hydrate(function($suite) {
 $suite->expects("limit: 10")
       ->that(function($suite) {
             $elements = [];
-            $stream = new Streams\Youtube\Playlist('PLAD454F0807B6CB80', $suite['config']);
+            $stream = new Streams\Youtube\Playlist('PLWmL9Ldoef0sKB07aXA1ekfyIqu-47rV6', $suite['config']);
             $stream->get()->then(function($data) use(&$elements) {
                 $elements = $data;
             })->wait();
@@ -26,7 +26,7 @@ $suite->expects("limit: false")
             $elements = [];
             $config = $suite['config'];
             $config['limit'] = false;
-            $stream = new Streams\Youtube\Playlist('PLAD454F0807B6CB80', $config);
+            $stream = new Streams\Youtube\Playlist('PLWmL9Ldoef0sKB07aXA1ekfyIqu-47rV6', $config);
             $stream->get()->then(function($data) use(&$elements) {
                 $elements = $data;
             })->wait();

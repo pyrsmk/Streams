@@ -14,7 +14,7 @@ $suite->hydrate(function($suite) {
 $suite->expects("limit: 10")
       ->that(function($suite) {
             $elements = [];
-            $stream = new Streams\Vimeo\User('soofette', $suite['config']);
+            $stream = new Streams\Vimeo\User('loispatino', $suite['config']);
             $stream->get()->then(function($data) use(&$elements) {
                 $elements = $data;
             })->wait();
@@ -28,7 +28,7 @@ $suite->expects("limit: false")
             $elements = [];
             $config = $suite['config'];
             $config['limit'] = false;
-            $stream = new Streams\Vimeo\User('soofette', $config);
+            $stream = new Streams\Vimeo\User('loispatino', $config);
             $stream->get()->then(function($data) use(&$elements) {
                 $elements = $data;
             })->wait();
