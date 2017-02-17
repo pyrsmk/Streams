@@ -138,7 +138,7 @@ abstract class AbstractStream {
             'curl' => [
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_NOBODY => true,
-                CURLOPT_TIMEOUT => 1
+                CURLOPT_TIMEOUT => 2
             ]
         ]);
         // Process data
