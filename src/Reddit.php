@@ -122,6 +122,14 @@ abstract class Reddit extends AbstractStream {
                 $elements[$id]['type'] = 'text';
                 $elements[$id]['description'] = htmlspecialchars_decode($post['data']['selftext_html']);
             }
+            // Embed
+            else if(isset($post['data']['media']['oembed']['html'])) {
+                $elements[$id]['type'] = 'embed';
+                $elements[$id]['html'] = htmlspecialchars_decode($post['data']['media']['oembed']['html']);
+                $elements[$id]['width'] = $post['data']['media']['oembed']['width'];
+                $elements[$id]['height'] = $post['data']['media']['oembed']['height'];
+                $elements[$id]['preview'] = $post['data']['media']['oembed']['thumbnail_url'];
+            }
             // Image
             else if(isset($post['data']['preview']['images'][0]['source']['url'])) {
                 $elements[$id]['type'] = 'image';
@@ -136,14 +144,6 @@ abstract class Reddit extends AbstractStream {
                         unset($elements[$id]);
                     });
                 };
-            }
-            // Embed
-            else if(isset($post['data']['media']['oembed']['html'])) {
-                $elements[$id]['type'] = 'embed';
-                $elements[$id]['html'] = htmlspecialchars_decode($post['data']['media']['oembed']['html']);
-                $elements[$id]['width'] = $post['data']['media']['oembed']['width'];
-                $elements[$id]['height'] = $post['data']['media']['oembed']['height'];
-                $elements[$id]['preview'] = $post['data']['media']['oembed']['thumbnail_url'];
             }
             else {
                 unset($elements[$id]);
