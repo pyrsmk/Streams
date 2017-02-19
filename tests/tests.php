@@ -13,12 +13,14 @@ set_time_limit(0);
 
 function verifyConsistency(array $elements) {
     foreach($elements as $id => $element) {
+        // Verify base
         if(!is_string($id) || strlen($id) != 32) {
             throw new Exception("'$id' id is invalid");
         }
         if(!isset($element['type'])) {
             throw new Exception("'type' field is required");
         }
+        // Choose schema to use
         switch($element['type']) {
             case 'text':
                 $schema = [
@@ -59,7 +61,11 @@ function verifyConsistency(array $elements) {
                     'width' => 'integer',
                     'height' => 'integer',
                     'mimetype' => 'string',
-                    'preview' => 'string'
+                    'preview' => [
+                        'source' => 'string',
+                        'width' => 'integer',
+                        'height' => 'integer'
+                    ]
                 ];
                 break;
             case 'embed':
@@ -74,25 +80,32 @@ function verifyConsistency(array $elements) {
                     'html' => 'string',
                     'width' => 'integer',
                     'height' => 'integer',
-                    'preview' => 'string'
+                    'preview' => [
+                        'source' => 'string',
+                        'width' => 'integer',
+                        'height' => 'integer'
+                    ]
                 ];
                 break;
             default:
                 throw new Exception("Unsupported '$type' element type");
         }
-        foreach($element as $name => $value) {
-            if(!isset($schema[$name])) {
-                throw new Exception("'$name' field is not in the shema");
+        // Verify consistency
+        $verify = function($element, $schema) use(&$verify) {
+            foreach($element as $name => $value) {
+                if(!isset($schema[$name])) {
+                    throw new Exception("'$name' field is not in the shema");
+                }
+                else if(is_array($schema[$name])) {
+                    $verify($value, $schema[$name]);
+                }
+                else if($value !== null && gettype($value) != $schema[$name]) {
+                    $type = gettype($value);
+                    throw new Exception("'$name' field should of type '{$schema[$name]}', saw '$type' instead");
+                }
             }
-            else if($value === null) {
-                // no way to verify specific API consistency for now
-                continue;
-            }
-            else if(gettype($value) != $schema[$name]) {
-                $type = gettype($value);
-                throw new Exception("'$name' field should of type '{$schema[$name]}', saw '$type' instead");
-            }
-        }
+        };
+        $verify($element, $schema);
     }
 }
 

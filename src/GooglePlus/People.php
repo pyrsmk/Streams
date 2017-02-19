@@ -5,7 +5,7 @@ namespace Streams\GooglePlus;
 use Streams\GooglePlus;
 
 /*
-    Youtube channel stream
+    Google Plus people stream
 */
 class People extends GooglePlus {
     

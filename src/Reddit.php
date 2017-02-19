@@ -128,7 +128,11 @@ abstract class Reddit extends AbstractStream {
                 $elements[$id]['html'] = htmlspecialchars_decode($post['data']['media']['oembed']['html']);
                 $elements[$id]['width'] = $post['data']['media']['oembed']['width'];
                 $elements[$id]['height'] = $post['data']['media']['oembed']['height'];
-                $elements[$id]['preview'] = $post['data']['media']['oembed']['thumbnail_url'];
+                $elements[$id]['preview'] = [
+                    'source' => $post['data']['media']['oembed']['thumbnail_url'],
+                    'width' => 480,
+                    'height' => 360
+                ];
             }
             // Image
             else if(isset($post['data']['preview']['images'][0]['source']['url'])) {

@@ -82,7 +82,11 @@ abstract class Instagram extends AbstractStream {
                 $elements[$id]['source'] = $post['videos']['standard_resolution']['url'];
                 $elements[$id]['width'] = $post['videos']['standard_resolution']['width'];
                 $elements[$id]['height'] = $post['videos']['standard_resolution']['height'];
-                $elements[$id]['preview'] = $post['images']['standard_resolution']['url'];
+                $elements[$id]['preview'] = [
+                    'source' => $post['images']['standard_resolution']['url'],
+                    'width' => $post['videos']['standard_resolution']['width'],
+                    'height' => $post['videos']['standard_resolution']['height']
+                ];
             }
             // Get mime type
             $requests[] = function() use(&$elements, $id) {

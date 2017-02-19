@@ -154,6 +154,8 @@ abstract class Vimeo extends AbstractStream {
         foreach($posts as $post) {
             // Prepare
             $id = $this->_getNewId();
+            $preview = $post['pictures']['sizes'][count($post['pictures']['sizes']) - 1]['link'];
+            preg_match('/^.+?(\d+)x(\d+)\.\w{3}\?r=pad$/', $preview, $size);
             // Embed
             $elements[$id] = [
                 'type' => 'embed',
@@ -164,7 +166,11 @@ abstract class Vimeo extends AbstractStream {
                 'html' => $post['embed']['html'],
                 'width' => $post['width'],
                 'height' => $post['height'],
-                'preview' => $post['pictures']['sizes'][count($post['pictures']['sizes']) - 1]['link'],
+                'preview' => [
+                    'source' => $preview,
+                    'width' => (int)$size[1],
+                    'height' => (int)$size[2]
+                ],
                 'author' => $post['user']['name'],
                 'avatar' => $post['user']['pictures']['sizes'][count($post['user']['pictures']['sizes']) - 1]['link']
             ];

@@ -129,7 +129,11 @@ abstract class Youtube extends AbstractStream {
                 'title' => $post['snippet']['title'],
                 'date' => strtotime($post['snippet']['publishedAt']),
                 'permalink' => 'https://www.youtube.com/watch?v='.$video_id,
-                'preview' => $post['snippet']['thumbnails'][$quality]['url'],
+                'preview' => [
+                    'source' => $post['snippet']['thumbnails'][$quality]['url'],
+                    'width' => 480,
+                    'height' => 360
+                ],
                 'author' => $post['snippet']['channelTitle'],
                 'description' => $post['snippet']['description']
             ];

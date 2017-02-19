@@ -145,7 +145,11 @@ abstract class GooglePlus extends AbstractStream {
                 $elements[$id]['html'] = "<iframe src=\"{$post['object']['attachments'][0]['embed']['url']}\" width=\"{$post['object']['attachments'][0]['image']['width']}\" height=\"{$post['object']['attachments'][0]['image']['height']}\"></iframe>";
                 $elements[$id]['width'] = $post['object']['attachments'][0]['image']['width'];
                 $elements[$id]['height'] = $post['object']['attachments'][0]['image']['height'];
-                $elements[$id]['preview'] = $post['object']['attachments'][0]['image']['url'];
+                $elements[$id]['preview'] = [
+                    'source' => $post['object']['attachments'][0]['image']['url'],
+                    'width' => $post['object']['attachments'][0]['image']['width'],
+                    'height' => $post['object']['attachments'][0]['image']['height']
+                ];
             }
             // Unsupported/invalid
             else {
