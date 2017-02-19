@@ -11,11 +11,6 @@ use Streams\Exception;
 class Videos extends Facebook {
     
     /*
-        string $name
-    */
-    protected $name;
-    
-    /*
         Get elements
         
         Return
@@ -25,24 +20,8 @@ class Videos extends Facebook {
         // Prepare
         $query = [];
         $query['fields'] = 'created_time,title,description,embed_html,permalink_url,format';
-        // Get page name
-        $this->_createRequest("/$this->id")->then(function($data) {
-            $this->name = $data->getGraphPage()['name'];
-        });
-        // Load the first page
-        return $this->_createRequest("/$this->id/videos", $query)->then(function($data) {
-            // Parse posts
-            $data = $data->getGraphEdge();
-            $elements = $this->_parsePosts($data);
-            // Get remaining data
-            while(
-                (empty($this->config['limit']) || count($elements) < $this->config['limit']) &&
-                $data = $this->facebook->next($data)
-            ) {
-                $elements = array_merge($elements, $this->_parsePosts($data));
-            }
-            return $elements;
-        });
+        // Get videos
+        return $this->_paginate("/$this->id/videos", $query);
     }
     
     /*
@@ -57,6 +36,11 @@ class Videos extends Facebook {
     protected function _parsePosts($posts) {
         // Prepare
         $elements = [];
+        // Get page name
+        $author = null;
+        $this->_getPageName($this->id)->then(function($name) use(&$author) {
+            $author = $name;
+        })->wait();
         // Browse posts
         foreach($posts as $post) {
             // Prepare
@@ -79,14 +63,18 @@ class Videos extends Facebook {
                 'permalink' => 'https://facebook.com'.$post['permalink_url'],
                 'title' => isset($post['title']) ? $post['title'] : null,
                 'description' => isset($post['description']) ? $post['description'] : null,
-                'preview' => $post['format'][$index]['picture'],
+                'preview' => [
+                    'source' => $post['format'][$index]['picture'],
+                    'width' => (int)$matches[1],
+                    'height' => (int)$matches[2]
+                ],
                 'width' => (int)$matches[1],
                 'height' => (int)$matches[2],
-                'author' => $this->name,
+                'author' => $author,
                 'avatar' => "http://graph.facebook.com/$this->id/picture?type=large"
             ];
         }
-        return $this->_filter($elements);
+        return $this->_filterTypes($elements);
     }
     
 }

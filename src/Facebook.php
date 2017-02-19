@@ -57,4 +57,45 @@ abstract class Facebook extends AbstractStream {
         return $promise;
     }
     
+    /*
+        Pagination
+        
+        Parameters
+            string $endpoint
+            array $query
+        
+        Return
+            GuzzleHttp\Promise\Promise
+    */
+    protected function _paginate($endpoint, array $query = []) {
+        return $this->_createRequest($endpoint, $query)->then(function($data) {
+            // Parse posts
+            $data = $data->getGraphEdge();
+            $elements = $this->_parsePosts($data);
+            // Get remaining data
+            while(
+                (empty($this->config['limit']) || count($elements) < $this->config['limit']) &&
+                $data = $this->facebook->next($data)
+            ) {
+                $elements = array_merge($elements, $this->_parsePosts($data));
+            }
+            return $elements;
+        });
+    }
+    
+    /*
+        Get a page's name
+        
+        Parameters
+            string $id
+        
+        Return
+            GuzzleHttp\Promise\Promise
+    */
+    protected function _getPageName($id) {
+        return $this->_createRequest("/$id")->then(function($data) {
+            return $data->getGraphPage()['name'];
+        });
+    }
+    
 }

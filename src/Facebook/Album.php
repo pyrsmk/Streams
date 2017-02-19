@@ -12,11 +12,6 @@ use GuzzleHttp;
 class Album extends Facebook {
     
     /*
-        string $name
-    */
-    protected $name;
-    
-    /*
         Get elements
         
         Return
@@ -29,24 +24,8 @@ class Album extends Facebook {
             $query['type'] = $this->config['type'];
         }
         $query['fields'] = 'created_time,caption,link,images';
-        // Get page name
-        $this->_createRequest("/$this->id")->then(function($data) {
-            $this->name = $data->getGraphPage()['name'];
-        });
         // Load the first page
-        return $this->_createRequest("/$this->id/photos", $query)->then(function($data) {
-            // Parse posts
-            $data = $data->getGraphEdge();
-            $elements = $this->_parsePosts($data);
-            // Get remaining data
-            while(
-                (empty($this->config['limit']) || count($elements) < $this->config['limit']) &&
-                $data = $this->facebook->next($data)
-            ) {
-                $elements = array_merge($elements, $this->_parsePosts($data));
-            }
-            return $elements;
-        });
+        return $this->_paginate("/$this->id/photos", $query);
     }
     
     /*
@@ -62,6 +41,11 @@ class Album extends Facebook {
         // Prepare
         $elements = [];
         $requests = [];
+        // Get page name
+        $author = null;
+        $this->_getPageName($this->id)->then(function($name) use(&$author) {
+            $author = $name;
+        })->wait();
         // Browse posts
         foreach($posts as $post) {
             // Prepare
@@ -85,7 +69,7 @@ class Album extends Facebook {
                 'description' => null,
                 'width' => $post['images'][$index]['width'],
                 'height' => $post['images'][$index]['height'],
-                'author' => $this->name,
+                'author' => $author,
                 'avatar' => "http://graph.facebook.com/$this->id/picture?type=large"
             ];
             // Get mimetype
@@ -102,7 +86,7 @@ class Album extends Facebook {
         $this->guzzle = new GuzzleHttp\Client(['verify' => false]);
         $pool = new GuzzleHttp\Pool($this->guzzle, $requests);
         $pool->promise()->wait();
-        return $this->_filter($elements);
+        return $this->_filterTypes($elements);
     }
     
 }
