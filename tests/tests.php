@@ -96,7 +96,7 @@ function verifyConsistency(array $elements) {
                 if(!isset($schema[$name])) {
                     throw new Exception("'$name' field is not in the shema");
                 }
-                else if(is_array($schema[$name])) {
+                else if(is_array($schema[$name]) && is_array($value)) {
                     $verify($value, $schema[$name]);
                 }
                 else if($value !== null && gettype($value) != $schema[$name]) {
