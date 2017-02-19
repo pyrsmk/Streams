@@ -25,7 +25,9 @@
 	"require": {
         "guzzlehttp/guzzle": "^6.2",
         "facebook/graph-sdk": "^5.4",
-        "james-heinrich/getid3": "^1.9"
+        "james-heinrich/getid3": "^1.9",
+		"symfony/dom-crawler": "^3.2",
+		"symfony/css-selector": "^3.2"
 	},
 	"autoload": {
 		"psr-4" : {
