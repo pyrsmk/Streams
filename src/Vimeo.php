@@ -175,7 +175,7 @@ abstract class Vimeo extends AbstractStream {
                 'avatar' => $post['user']['pictures']['sizes'][count($post['user']['pictures']['sizes']) - 1]['link']
             ];
         }
-        return $this->_filter($elements);
+        return $this->_filterTypes($elements);
     }
     
 }

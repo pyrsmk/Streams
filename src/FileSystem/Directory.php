@@ -55,7 +55,7 @@ class Directory extends FileSystem {
                     $elements[$id]['preview'] = null;
                 }
             }
-            return $this->_filter($elements);
+            return $this->_filterTypes($elements);
         });
     }
     

@@ -1,6 +1,6 @@
 <?php
 
-$suite = new MiniSuite\Suite('Get parameter');
+$suite = new MiniSuite\Suite('Select element types');
 
 $suite->expects("text")
       ->that(function($suite) {
@@ -8,7 +8,7 @@ $suite->expects("text")
             $stream = new Streams\GooglePlus\People('+frandroid', [
                 'api' => 'AIzaSyAlKfOvbX_fJG7fNR7_H3N5HW8teFI_GO0',
                 'limit' => 10,
-                'get' => ['text']
+                'select' => ['text']
             ]);
             $stream->get()->then(function($data) use(&$elements) {
                 $elements = $data;
@@ -29,7 +29,7 @@ $suite->expects("image")
             $stream = new Streams\GooglePlus\People('+frandroid', [
                 'api' => 'AIzaSyAlKfOvbX_fJG7fNR7_H3N5HW8teFI_GO0',
                 'limit' => 10,
-                'get' => ['image']
+                'select' => ['image']
             ]);
             $stream->get()->then(function($data) use(&$elements) {
                 $elements = $data;
@@ -48,7 +48,7 @@ $suite->expects("video")
       ->that(function($suite) {
             $elements = [];
             $stream = new Streams\FileSystem\Directory('medias/', [
-                'get' => ['video']
+                'select' => ['video']
             ]);
             $stream->get()->then(function($data) use(&$elements) {
                 $elements = $data;
@@ -69,7 +69,7 @@ $suite->expects("embed")
             $stream = new Streams\GooglePlus\People('+frandroid', [
                 'api' => 'AIzaSyAlKfOvbX_fJG7fNR7_H3N5HW8teFI_GO0',
                 'limit' => 10,
-                'get' => ['embed']
+                'select' => ['embed']
             ]);
             $stream->get()->then(function($data) use(&$elements) {
                 $elements = $data;

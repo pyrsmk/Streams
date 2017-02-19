@@ -144,7 +144,7 @@ abstract class Dribbble extends AbstractStream {
         // Populate last fields
         $pool = new GuzzleHttp\Pool($this->guzzle, $requests);
         $pool->promise()->wait();
-        return $this->_filter($elements);
+        return $this->_filterTypes($elements);
     }
     
     /*

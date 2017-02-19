@@ -32,10 +32,10 @@ abstract class AbstractStream {
         $this->id = $id;
         $this->config = $config;
         // Init config
-        $this->config['get'] = isset($this->config['get']) ? $this->config['get'] : $types;
-        foreach($this->config['get'] as $type) {
+        $this->config['select'] = isset($this->config['select']) ? $this->config['select'] : $types;
+        foreach($this->config['select'] as $type) {
             if(!in_array($type, $types)) {
-                throw new Exception("Invalid '$type' type in 'get' parameter");
+                throw new Exception("Invalid '$type' type in 'select' parameter");
             }
         }
         $this->config['nsfw'] = isset($this->config['nsfw']) ? $this->config['nsfw'] : false;
@@ -88,7 +88,7 @@ abstract class AbstractStream {
     abstract protected function _getElements();
     
     /*
-        Filter elements according to 'get' config parameter
+        Filter types according to 'get' config parameter
         
         Parameters
             array $elements
@@ -96,9 +96,9 @@ abstract class AbstractStream {
         Return
             array
     */
-    protected function _filter(array $elements) {
+    protected function _filterTypes(array $elements) {
         foreach($elements as $id => $element) {
-            if(!in_array($element['type'], $this->config['get'])) {
+            if(!in_array($element['type'], $this->config['select'])) {
                 unset($elements[$id]);
             }
         }
